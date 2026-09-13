@@ -8,5 +8,10 @@ class User_personalityResponse(BaseModel):
     user_id: int
     personality_id: int
 
+class User_personalityCreate(BaseModel):
+    """レスポンスとして返すデータ"""
+    user_id: int
+    personality_id: list[int]
+
     class Config:
         from_attributes = True  # SQLAlchemy モデルからの変換を許可

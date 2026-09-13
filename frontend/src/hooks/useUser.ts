@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { User, UserUpdate } from "@/types/user";
+import { UserPersonality } from "@/types/userPersonality";
+
 
 export function useUser(id: number) {
   const [user, setUser]       = useState<User | null>(null);
@@ -30,6 +32,11 @@ export function useUser(id: number) {
   const updateUser = async (input: UserUpdate) => {
     try {
       const updated = await api.put<User>(`/users/${id}`, input);
+      await api.post<UserPersonality>(`/user_personalities/`, {
+  "user_id": id,
+  "personality_id": input.personality_id
+});
+
       setUser(updated);
       return updated;
     } catch (e) {

@@ -1,7 +1,49 @@
 "use client";
 
-import { useState } from "react";
 import { User, UserUpdate } from "@/types/user";
+import React, { useState } from "react";
+import { TagSelector, TagOption } from "@/components/TagSelector";
+import { Personality } from "@/types/personality";
+import { Keyword } from "@/types/keyword";
+import { api } from "@/lib/api";
+
+// // 選択肢データの定義
+// const PERSONALITY_OPTIONS: TagOption[] = [
+//   { id: "1", label: "協調性がある" },
+//   { id: "2", label: "慎重" },
+//   { id: "3", label: "好奇心旺盛" },
+//   { id: "4", label: "リーダーシップ" },
+//   { id: "5", label: "柔軟性" },
+//   { id: "6", label: "分析的" },
+//   { id: "7", label: "大胆" },
+// ];
+
+// const KEYWORD_OPTIONS: TagOption[] = [
+//   { id: "101", label: "論理的思考" },
+//   { id: "102", label: "継続力" },
+//   { id: "103", label: "発想力" },
+//   { id: "104", label: "実行力" },
+//   { id: "105", label: "傾聴力" },
+// ];
+
+const toPersonalityOption = (res: Personality): TagOption => ({
+  id: String(res.id),
+  label: res.personality,
+});
+
+const DATA: Personality[] = await api.get<Personality[]>(`/personalities`)
+const PERSONALITY_OPTIONS: TagOption[] = DATA.map(toPersonalityOption);
+
+const toKeywordOption = (res: Keyword): TagOption => ({
+  id: String(res.id),
+  label: res.keywords,
+});
+
+const KEYWORD_DATA: Keyword[] = await api.get<Keyword[]>(`/keywords`)
+const KEYWORD_OPTIONS: TagOption[] = KEYWORD_DATA.map(toKeywordOption);
+
+
+
 
 type Props = {
   user: User;
@@ -30,6 +72,7 @@ export default function ProfileEditForm({ user, onSubmit }: Props) {
         birth_date: birthDate || null,
         bio: bio || null,
         avatar_url: avatarUrl || null,
+        personality_id: selectedPersonalities
       });
       setSuccess(true);
     } catch (e) {
@@ -38,7 +81,12 @@ export default function ProfileEditForm({ user, onSubmit }: Props) {
       setSubmitting(false);
     }
   };
-
+  // 初期選択状態（画像に合わせ込み）
+  const [selectedPersonalities, setSelectedPersonalities] = useState<number[]>([]);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([
+    "101",
+    "102",
+  ]);
   return (
     <form
       onSubmit={handleSubmit}
@@ -143,8 +191,26 @@ export default function ProfileEditForm({ user, onSubmit }: Props) {
             画像のURLを入力するとプレビューが表示されます
           </p>
         </div>
+{/* 性格セクション */}
+      <TagSelector
+        title="性格"
+        maxSelect={5}
+        options={PERSONALITY_OPTIONS}
+        selectedIds={selectedPersonalities}
+        onChange={setSelectedPersonalities}
+        variant="blue"
+      />
 
-        {/* キーワード */}
+      {/* 特徴セクション */}
+      <TagSelector
+        title="特徴"
+        maxSelect={5}
+        options={KEYWORD_OPTIONS}
+        selectedIds={selectedFeatures}
+        onChange={setSelectedFeatures}
+        variant="green"
+      />
+        {/* キーワード
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             キーワード
@@ -157,7 +223,7 @@ export default function ProfileEditForm({ user, onSubmit }: Props) {
             <option value="e">ゲーム</option>
             <option value="f">パズル</option>
           </select>
-        </div>
+        </div> */}
    
       </div>
 

@@ -24,4 +24,5 @@ export type UserUpdate = {
   birth_date: string | null;
   bio: string | null;
   avatar_url: string | null;
+  personality_id: number[];
 };
